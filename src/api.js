@@ -1,5 +1,6 @@
 // API routes are now served from the same domain (Vercel Functions)
 const API_BASE_URL = '/api';
+console.log('API v1.0.1 - Using query parameter routes');
 
 // Helper function for API calls
 async function apiCall(endpoint, options = {}) {
