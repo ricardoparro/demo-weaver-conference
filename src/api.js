@@ -1,5 +1,5 @@
-// Use environment variable for production API URL, fallback to local proxy
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+// API routes are now served from the same domain (Vercel Functions)
+const API_BASE_URL = '/api';
 
 // Helper function for API calls
 async function apiCall(endpoint, options = {}) {

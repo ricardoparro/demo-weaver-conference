@@ -1,0 +1,23 @@
+# Ignore standalone backend (using Vercel Functions instead)
+backend/
+
+# Development files
+.env
+.env.local
+.env.*.local
+
+# Git files
+.git/
+.gitignore
+
+# Documentation
+*.md
+LICENSE
+
+# Editor directories
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
