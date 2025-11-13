@@ -1,48 +1,61 @@
 // Database configuration for Vercel deployment
-// Using in-memory storage for demo (resets on each deployment)
+// Using global variables for better persistence within the same container
+// Note: Data will still reset when the container is recycled (cold start)
 // For production, use Vercel KV, Postgres, or external database
 
-let notebooks = [
-  { id: 1, name: 'Personal', color: '#FF6B6B', createdAt: new Date().toISOString() },
-  { id: 2, name: 'Work', color: '#4ECDC4', createdAt: new Date().toISOString() },
-  { id: 3, name: 'Ideas', color: '#95E1D3', createdAt: new Date().toISOString() }
-];
+// Use global to persist data between function invocations in the same container
+if (!global.dbInitialized) {
+  global.notebooks = [
+    { id: 1, name: 'Personal', color: '#FF6B6B', createdAt: new Date().toISOString() },
+    { id: 2, name: 'Work', color: '#4ECDC4', createdAt: new Date().toISOString() },
+    { id: 3, name: 'Ideas', color: '#95E1D3', createdAt: new Date().toISOString() }
+  ];
 
-let notes = [
-  {
-    id: 1,
-    notebookId: 1,
-    title: 'Welcome to your Notebook!',
-    content: 'This is your first note. Start writing and organize your thoughts!\n\n#welcome #tutorial',
-    isFavorite: true,
-    isDeleted: false,
-    createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-    updatedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
-  },
-  {
-    id: 2,
-    notebookId: 2,
-    title: 'Meeting Notes',
-    content: 'Team sync discussion points:\n- Project timeline\n- Resource allocation\n- Next steps\n\n#meeting #important',
-    isFavorite: false,
-    isDeleted: false,
-    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-    updatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
-  },
-  {
-    id: 3,
-    notebookId: 3,
-    title: 'App Ideas',
-    content: 'Potential features to add:\n- Dark mode\n- Export to PDF\n- Collaboration\n\n#ideas #todo',
-    isFavorite: true,
-    isDeleted: false,
-    createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-    updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
-  }
-];
+  global.notes = [
+    {
+      id: 1,
+      notebookId: 1,
+      title: 'Welcome to your Notebook!',
+      content: 'This is your first note. Start writing and organize your thoughts!\n\n#welcome #tutorial',
+      isFavorite: true,
+      isDeleted: false,
+      createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+      updatedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+    },
+    {
+      id: 2,
+      notebookId: 2,
+      title: 'Meeting Notes',
+      content: 'Team sync discussion points:\n- Project timeline\n- Resource allocation\n- Next steps\n\n#meeting #important',
+      isFavorite: false,
+      isDeleted: false,
+      createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+      updatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
+    },
+    {
+      id: 3,
+      notebookId: 3,
+      title: 'App Ideas',
+      content: 'Potential features to add:\n- Dark mode\n- Export to PDF\n- Collaboration\n\n#ideas #todo',
+      isFavorite: true,
+      isDeleted: false,
+      createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+      updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
+    }
+  ];
 
-let nextNoteId = 4;
-let nextNotebookId = 4;
+  global.nextNoteId = 4;
+  global.nextNotebookId = 4;
+  global.dbInitialized = true;
+
+  console.log('Database initialized with seed data');
+}
+
+// Reference global variables
+let notebooks = global.notebooks;
+let notes = global.notes;
+let nextNoteId = global.nextNoteId;
+let nextNotebookId = global.nextNotebookId;
 
 // Helper function to extract tags from content
 function extractTags(content) {
@@ -70,6 +83,8 @@ export const db = {
       createdAt: new Date().toISOString()
     };
     notebooks.push(notebook);
+    global.notebooks = notebooks;
+    global.nextNotebookId = nextNotebookId;
     return notebook;
   },
 
@@ -77,6 +92,7 @@ export const db = {
     const index = notebooks.findIndex(n => n.id === parseInt(id));
     if (index === -1) return null;
     notebooks[index] = { ...notebooks[index], ...data };
+    global.notebooks = notebooks;
     return notebooks[index];
   },
 
@@ -86,6 +102,8 @@ export const db = {
     // Delete all notes in this notebook
     notes = notes.filter(n => n.notebookId !== parseInt(id));
     notebooks.splice(index, 1);
+    global.notebooks = notebooks;
+    global.notes = notes;
     return true;
   },
 
@@ -123,12 +141,17 @@ export const db = {
       updatedAt: new Date().toISOString()
     };
     notes.push(note);
+    global.notes = notes;
+    global.nextNoteId = nextNoteId;
     return note;
   },
 
   updateNote: (id, data) => {
     const index = notes.findIndex(n => n.id === parseInt(id));
-    if (index === -1) return null;
+    if (index === -1) {
+      console.log('Note not found for update:', id, 'Available notes:', notes.map(n => n.id));
+      return null;
+    }
 
     const updatedNote = {
       ...notes[index],
@@ -136,6 +159,8 @@ export const db = {
       updatedAt: new Date().toISOString()
     };
     notes[index] = updatedNote;
+    global.notes = notes;
+    console.log('Note updated successfully:', id);
     return updatedNote;
   },
 
@@ -144,6 +169,7 @@ export const db = {
     if (index === -1) return false;
     notes[index].isDeleted = true;
     notes[index].updatedAt = new Date().toISOString();
+    global.notes = notes;
     return true;
   },
 
@@ -155,6 +181,7 @@ export const db = {
 
     note.notebookId = parseInt(notebookId);
     note.updatedAt = new Date().toISOString();
+    global.notes = notes;
     return note;
   },
 
@@ -163,6 +190,7 @@ export const db = {
     if (!note || !note.isDeleted) return null;
     note.isDeleted = false;
     note.updatedAt = new Date().toISOString();
+    global.notes = notes;
     return note;
   },
 

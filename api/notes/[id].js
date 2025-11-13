@@ -12,6 +12,15 @@ export default function handler(req, res) {
 
   const { id } = req.query;
 
+  // Debug logging
+  console.log('Notes [id] handler:', {
+    method: req.method,
+    id: id,
+    query: req.query,
+    url: req.url,
+    body: req.body
+  });
+
   try {
     if (req.method === 'GET') {
       const note = db.getNote(id);
@@ -30,9 +39,19 @@ export default function handler(req, res) {
       if (isFavorite !== undefined) updates.isFavorite = isFavorite;
       if (tags !== undefined) updates.tags = tags;
 
+      console.log('Updating note:', id, 'with:', updates);
+
       const note = db.updateNote(id, updates);
       if (!note) {
-        return res.status(404).json({ error: 'Note not found' });
+        // Provide more context in error
+        const allNotes = db.getAllNotes({ isDeleted: false });
+        console.error('Failed to update note. Available note IDs:', allNotes.map(n => n.id));
+        return res.status(404).json({
+          error: 'Note not found',
+          id: id,
+          availableNotes: allNotes.length,
+          message: 'The note may have been deleted or the data was reset. Try refreshing the page.'
+        });
       }
       return res.status(200).json(note);
     }
