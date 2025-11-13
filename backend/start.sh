@@ -1,0 +1,27 @@
+#!/bin/bash
+
+echo "Starting Notebook App Backend Server..."
+echo ""
+echo "Server will run on: http://localhost:3000"
+echo ""
+echo "Available endpoints:"
+echo "  - GET    /api/notebooks"
+echo "  - POST   /api/notebooks"
+echo "  - PUT    /api/notebooks/:id"
+echo "  - DELETE /api/notebooks/:id"
+echo "  - GET    /api/notes"
+echo "  - POST   /api/notes"
+echo "  - PUT    /api/notes/:id"
+echo "  - DELETE /api/notes/:id"
+echo "  - POST   /api/notes/:id/move"
+echo "  - GET    /api/search?q=query"
+echo "  - GET    /api/tags"
+echo "  - GET    /api/favorites"
+echo "  - GET    /api/trash"
+echo "  - POST   /api/trash/:id/restore"
+echo "  - GET    /api/health"
+echo ""
+echo "Press Ctrl+C to stop the server"
+echo ""
+
+node server.js
