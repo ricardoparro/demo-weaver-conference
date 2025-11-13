@@ -1,9 +1,9 @@
-import { db } from '../db.js';
+import { db } from './db.js';
 
 export default function handler(req, res) {
   // Enable CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') {
@@ -13,6 +13,10 @@ export default function handler(req, res) {
   const { id } = req.query;
 
   try {
+    if (!id) {
+      return res.status(400).json({ error: 'Notebook ID is required' });
+    }
+
     if (req.method === 'GET') {
       const notebook = db.getNotebook(id);
       if (!notebook) {

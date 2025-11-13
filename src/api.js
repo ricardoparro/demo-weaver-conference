@@ -32,14 +32,14 @@ export async function createNotebook(data) {
 }
 
 export async function updateNotebook(id, data) {
-  return apiCall(`/notebooks/${id}`, {
+  return apiCall(`/notebooks-by-id?id=${id}`, {
     method: 'PUT',
     body: JSON.stringify(data),
   });
 }
 
 export async function deleteNotebook(id) {
-  return apiCall(`/notebooks/${id}`, {
+  return apiCall(`/notebooks-by-id?id=${id}`, {
     method: 'DELETE',
   });
 }
@@ -63,22 +63,22 @@ export async function createNote(data) {
 }
 
 export async function updateNote(id, data) {
-  return apiCall(`/notes/${id}`, {
+  return apiCall(`/notes-by-id?id=${id}`, {
     method: 'PUT',
     body: JSON.stringify(data),
   });
 }
 
 export async function deleteNote(id) {
-  return apiCall(`/notes/${id}`, {
+  return apiCall(`/notes-by-id?id=${id}`, {
     method: 'DELETE',
   });
 }
 
 export async function moveNote(id, notebookId) {
-  return apiCall(`/notes/${id}/move`, {
+  return apiCall(`/notes-move?id=${id}&notebookId=${notebookId}`, {
     method: 'POST',
-    body: JSON.stringify({ notebookId }),
+    body: JSON.stringify({}),
   });
 }
 
@@ -104,7 +104,8 @@ export async function fetchTrash() {
 }
 
 export async function restoreFromTrash(id) {
-  return apiCall(`/trash/${id}/restore`, {
+  return apiCall(`/trash-restore?id=${id}`, {
     method: 'POST',
+    body: JSON.stringify({}),
   });
 }

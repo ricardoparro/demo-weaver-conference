@@ -1,4 +1,4 @@
-import { db } from '../../db.js';
+import { db } from './db.js';
 
 export default function handler(req, res) {
   // Enable CORS
@@ -14,10 +14,15 @@ export default function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { id } = req.query;
-  const { notebookId } = req.body;
+  // Extract note ID from the URL path
+  // URL format: /api/notes-move?id=123&notebookId=2
+  const { id, notebookId } = req.query;
 
   try {
+    if (!id) {
+      return res.status(400).json({ error: 'Note ID is required' });
+    }
+
     if (!notebookId) {
       return res.status(400).json({ error: 'notebookId is required' });
     }
