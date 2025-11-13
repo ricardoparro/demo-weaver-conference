@@ -1,6 +1,7 @@
 // API routes are now served from the same domain (Vercel Functions)
 const API_BASE_URL = '/api';
-console.log('API v1.0.1 - Using query parameter routes');
+console.log('API v1.0.2 - Fixed: Using query parameter routes');
+console.log('Build timestamp:', new Date().toISOString());
 
 // Helper function for API calls
 async function apiCall(endpoint, options = {}) {
@@ -33,14 +34,14 @@ export async function createNotebook(data) {
 }
 
 export async function updateNotebook(id, data) {
-  return apiCall(`/notebooks-by-id?id=${id}`, {
+  return apiCall(`/notebooks?id=${id}`, {
     method: 'PUT',
     body: JSON.stringify(data),
   });
 }
 
 export async function deleteNotebook(id) {
-  return apiCall(`/notebooks-by-id?id=${id}`, {
+  return apiCall(`/notebooks?id=${id}`, {
     method: 'DELETE',
   });
 }
@@ -64,20 +65,20 @@ export async function createNote(data) {
 }
 
 export async function updateNote(id, data) {
-  return apiCall(`/notes-by-id?id=${id}`, {
+  return apiCall(`/notes?id=${id}`, {
     method: 'PUT',
     body: JSON.stringify(data),
   });
 }
 
 export async function deleteNote(id) {
-  return apiCall(`/notes-by-id?id=${id}`, {
+  return apiCall(`/notes?id=${id}`, {
     method: 'DELETE',
   });
 }
 
 export async function moveNote(id, notebookId) {
-  return apiCall(`/notes-move?id=${id}&notebookId=${notebookId}`, {
+  return apiCall(`/notes?id=${id}&action=move&notebookId=${notebookId}`, {
     method: 'POST',
     body: JSON.stringify({}),
   });
@@ -105,7 +106,7 @@ export async function fetchTrash() {
 }
 
 export async function restoreFromTrash(id) {
-  return apiCall(`/trash-restore?id=${id}`, {
+  return apiCall(`/trash?id=${id}&action=restore`, {
     method: 'POST',
     body: JSON.stringify({}),
   });
