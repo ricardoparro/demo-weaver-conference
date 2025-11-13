@@ -3,13 +3,30 @@ const cors = require('cors');
 const { db, initDatabase, extractAndSaveTags } = require('./database');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8000;
+
+// CORS configuration - allow multiple origins
+const allowedOrigins = [
+  'http://localhost:5173',  // Local Vite development
+  'http://localhost:3000',  // Alternative local port
+  process.env.FRONTEND_URL   // Production frontend URL from environment variable
+].filter(Boolean); // Remove undefined values
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps or Postman)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type']
+  allowedHeaders: ['Content-Type'],
+  credentials: true
 }));
 app.use(express.json());
 

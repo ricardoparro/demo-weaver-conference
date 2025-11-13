@@ -1,4 +1,5 @@
-const API_BASE_URL = '/api';
+// Use environment variable for production API URL, fallback to local proxy
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 // Helper function for API calls
 async function apiCall(endpoint, options = {}) {
